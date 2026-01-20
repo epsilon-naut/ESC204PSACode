@@ -37,6 +37,7 @@ def mode_2():
 
 def mode_3(edge_count):
 	if((time_start != 0) and (cur_time - time_start) > 10):
+		time_start = 0
 		edge_count = 1
 		mode_1()
 	else:
@@ -62,6 +63,7 @@ if __name__ == "__main__":
 		print(edge_count)
 		cur_time = time.monotonic()
 		if((edge_count % 3) == 1):
+			time_start = 0
 			mode_1()
 		elif((edge_count % 3) == 2):
 			mode_2()
