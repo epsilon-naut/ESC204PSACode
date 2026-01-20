@@ -5,44 +5,32 @@ Task: Light up external LED on button press.
 # Import libraries needed for blinking the LED
 import board
 import digitalio
-import asyncio
-import countio
 import time
-import alarm
 
 # Configure the internal GPIO connected to the LED as a digital output
-ledb = digitalio.DigitalInOut(board.GP7)
-ledb.direction = digitalio.Direction.OUTPUT
-
-ledg = digitalio.DigitalInOut(board.GP11)
-ledg.direction = digitalio.Direction.OUTPUT
-
-ledr = digitalio.DigitalInOut(board.GP6)
-ledr.direction = digitalio.Direction.OUTPUT
+led = digitalio.DigitalInOut(board.GP25)
+led.direction = digitalio.Direction.OUTPUT
 
 # Configure the internal GPIO connected to the button as a digital input
 button = digitalio.DigitalInOut(board.GP15)
 button.direction = digitalio.Direction.INPUT
-button.pull = digitalio.Pull.DOWN # Set the internal resistor to pull-up
+button.pull = digitalio.Pull.UP # Set the internal resistor to pull-up
+
+# Print a message on the serial console
+print('Hello! My LED is controlled by the button.')
 
 def mode_1():
-	ledr.value = True
-	ledg.value = True
-	ledb.value = False
+	led.value = False
 
 def mode_2():
-	ledr.value = True
-	ledg.value = True
-	ledb.value = True
+	led.value = True
 
 def mode_3(edge_count):
 	if((time_start != 0) and (cur_time - time_start) > 10):
 		edge_count = 1
 		mode_1()
 	else:
-		ledr.value = False
-		ledg.value = False
-		ledb.value = False
+		led.value = True
 	return edge_count
 
 edge_count = 0
