@@ -9,6 +9,7 @@ import time
 import alarm
 import pwmio
 import analogio
+from adafruit_debouncer import Debouncer
 
 # Configure the internal GPIO connected to the LED as a digital output
 
@@ -25,6 +26,7 @@ import analogio
 button = digitalio.DigitalInOut(board.GP15)
 button.direction = digitalio.Direction.INPUT
 button.pull = digitalio.Pull.UP # Set the internal resistor to pull-up
+switch = Debouncer(button)
 
 pwmr = pwmio.PWMOut(board.GP6, frequency=5000, duty_cycle=0)
 pwmg = pwmio.PWMOut(board.GP11, frequency=5000, duty_cycle=0)
@@ -64,10 +66,8 @@ def mode_3(raw, edge_count, time_start, cur_time, mode):
 
 def change_led_brightness(raw, delay_start, knob, mode):
 	if(delay_start == 0):
-		print("ok")
 		delay_start = time.monotonic()
 	elif(time.monotonic() - delay_start > 0.01):
-		print("check")
 		raw = knob.value
 		delay_start = 0
 	if(mode == 1):
@@ -94,21 +94,21 @@ if __name__ == "__main__":
 	raw = 60000
 	mode = 1
 	while True:
-		while(button.value):
-			raw, delay_start = change_led_brightness(raw, delay_start, knob, mode)
-		while(not button.value):
-			raw, delay_start = change_led_brightness(raw, delay_start, knob, mode)
-		edge_count += 1
-		cur_time = time.monotonic()
-		if((edge_count % 3) == 1):
-			time_start = 0
-			mode = mode_1()
-		elif((edge_count % 3) == 2):
-			mode = mode_2(raw)
-			time_start = time.monotonic()
-		else:
-			edge_count, mode = mode_3(raw, edge_count, time_start, cur_time, mode)
-		time.sleep(0.5)
+		switch.update()
+		if(switch.fell):
+			edge_count += 1
+			cur_time = time.monotonic()
+			if((edge_count % 3) == 1):
+				time_start = 0
+				mode = mode_1()
+			elif((edge_count % 3) == 2):
+				mode = mode_2(raw)
+				time_start = time.monotonic()
+			else:
+				edge_count, mode = mode_3(raw, edge_count, time_start, cur_time, mode)
+		raw, delay_start = change_led_brightness(raw, delay_start, knob, mode)
+
+
 
 
 
